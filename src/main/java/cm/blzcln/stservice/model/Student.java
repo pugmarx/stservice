@@ -88,4 +88,13 @@ public class Student {
 		return this.age;
 	}
 
+	@Override
+	public String toString() {
+		return "Student [name=" + name + ", id=" + id + ", age=" + age
+				+ ", photo=" + photo + ", rating=" + rating + ", klass="
+				+ klass + ", classTeacher=" + classTeacher + "]";
+	}
+
+	
+	
 }

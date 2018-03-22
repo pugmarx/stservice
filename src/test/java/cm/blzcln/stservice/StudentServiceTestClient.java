@@ -71,12 +71,12 @@ public class StudentServiceTestClient {
     }
   
     public static void main(String args[]){
-        listAllStudents();
+        //listAllStudents();
         getStudent();
         //createStudent();
         //listAllStudents();
-        //updateStudent();
-        //listAllStudents();
+        updateStudent();
+        listAllStudents();
        // deleteStudent();
        // listAllStudents();
        // deleteAllStudents();
