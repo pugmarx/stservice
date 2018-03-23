@@ -28,6 +28,21 @@ public class StudentServiceTestClient {
             System.out.println("No student exist----------");
         }
     }
+    
+    private static void listStudents(){
+        System.out.println("Testing listStudents API-----------");
+          
+        RestTemplate restTemplate = new RestTemplate();
+        //List<LinkedHashMap<String, Object>> studentsMap = restTemplate.getForObject(REST_SERVICE_URI+"/student/all", List.class);
+        Student[] students = restTemplate.getForObject(REST_SERVICE_URI+"/student/", Student[].class);  
+        if(students!=null){
+            for(Student student: students){
+                System.out.println(student);
+            }
+        }else{
+            System.out.println("No student exist----------");
+        }
+    }
       
     /* GET */
     private static void getStudent(){
@@ -50,7 +65,7 @@ public class StudentServiceTestClient {
     private static void updateStudent() {
         System.out.println("Testing update Student API----------");
         RestTemplate restTemplate = new RestTemplate();
-        Student student  = new Student(1, "Amy", 44, "", 3);
+        Student student  = new Student(1, "Amy", 45, "", 3);
         restTemplate.put(REST_SERVICE_URI+"/student/1", student);
         System.out.println(student);
     }
@@ -59,7 +74,7 @@ public class StudentServiceTestClient {
     private static void deleteStudent() {
         System.out.println("Testing delete Student API----------");
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.delete(REST_SERVICE_URI+"/student/3");
+        restTemplate.delete(REST_SERVICE_URI+"/student/11");
     }
   
   
@@ -71,14 +86,15 @@ public class StudentServiceTestClient {
     }
   
     public static void main(String args[]){
-        //listAllStudents();
+    	//listStudents();
+        listAllStudents();
         getStudent();
         //createStudent();
         //listAllStudents();
         updateStudent();
         listAllStudents();
-       // deleteStudent();
-       // listAllStudents();
+        deleteStudent();
+        listAllStudents();
        // deleteAllStudents();
        // listAllStudents();
     }

@@ -35,6 +35,16 @@ public class StudentRestController {
         return new ResponseEntity<List<Student>>(students, HttpStatus.OK);
     }
  
+    
+//    @RequestMapping(value = "/student/", method = RequestMethod.GET)
+//    public ResponseEntity<Student[]> getAllStudents() {
+//        List<Student> students = studentService.findAllStudents();
+//        if(students.isEmpty()){
+//            return new ResponseEntity<Student[]>(HttpStatus.NO_CONTENT);//You many decide to return HttpStatus.NOT_FOUND
+//        }
+//        Student[] stArr = students.toArray(new Student[students.size()]);
+//        return new ResponseEntity<Student[]>(stArr, HttpStatus.OK);
+//    }
  
     //-------------------Retrieve Single Student--------------------------------------------------------
      
