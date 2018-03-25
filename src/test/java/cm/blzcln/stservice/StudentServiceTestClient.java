@@ -55,7 +55,7 @@ public class StudentServiceTestClient {
 		System.out.println("Testing getStudent API----------");
 		RestTemplate restTemplate = new RestTemplate();
 		Student student = restTemplate.getForObject(REST_SERVICE_URI
-				+ "/student/1", Student.class);
+				+ "/student/12", Student.class);
 		System.out.println(student);
 	}
 
@@ -63,7 +63,7 @@ public class StudentServiceTestClient {
 	private static void createStudent() {
 		System.out.println("Testing create Student API----------");
 		RestTemplate restTemplate = new RestTemplate();
-		Student student = new Student("Zaba", 17, "/Users/Hobbes/Dev/file.txt", 7);
+		Student student = new Student("Yasmin", 12, "/Users/Hobbes/Pictures/8bit/2086526.png", 5);
 		URI uri = restTemplate.postForLocation(REST_SERVICE_URI + "/student/",
 				student, Student.class);
 		System.out.println("Location : " + uri.toASCIIString());
@@ -118,8 +118,8 @@ public class StudentServiceTestClient {
 	}
 	
 	public static void main(String args[]) {
-		createStudent();
-		
+		//createStudent();
+		getStudent();
 		//generateStudents();
 		//listStudents();
 		listAllStudents();

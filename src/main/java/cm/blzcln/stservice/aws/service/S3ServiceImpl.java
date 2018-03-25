@@ -1,10 +1,6 @@
 package cm.blzcln.stservice.aws.service;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +13,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
 
 @Service("s3Service")
 public class S3ServiceImpl implements S3Service {
@@ -29,25 +24,27 @@ public class S3ServiceImpl implements S3Service {
 
 	@Value("${student.s3.bucket}")
 	private String bucketName;
+	
+	@Value("${student.img.tmp.dir}")
+	private String tmpDir;
 
 	@Override
-	public void downloadFile(String keyName) {
+	public String downloadFile(String keyName) {
+		File localFile = new File(tmpDir, keyName);
 		try {
 			System.out.println("Downloading an object");
-			S3Object s3object = s3client.getObject(new GetObjectRequest(
-					bucketName, keyName));
-			System.out.println("Content-Type: "
-					+ s3object.getObjectMetadata().getContentType());
-			displayText(s3object.getObjectContent());
+			
+			//ObjectMetadata object = s3client.getObject(new GetObjectRequest(bucketName, keyName), localFile);
+			s3client.getObject(new GetObjectRequest(bucketName, keyName), localFile);
+			
 			logger.info("===================== Import File - Done! =====================");
 		} catch (AmazonServiceException ase) {
 			handleAWSServiceException("GET", ase);
 		} catch (AmazonClientException ace) {
 			logger.info("Caught an AmazonClientException: ");
 			logger.info("Error Message: " + ace.getMessage());
-		} catch (IOException ioe) {
-			logger.info("IOE Error Message: " + ioe.getMessage());
-		}
+		} 
+		return localFile.getAbsolutePath();
 	}
 
 	@Override
@@ -63,7 +60,6 @@ public class S3ServiceImpl implements S3Service {
 			logger.info("Error Message: " + ace.getMessage());
 		}
 	}
-
 	
 	private void handleAWSServiceException(String action, AmazonServiceException e){
 		logger.info("Caught an AmazonServiceException from "+ action + " requests, rejected reasons:");
@@ -73,17 +69,4 @@ public class S3ServiceImpl implements S3Service {
 		logger.info("Error Type:       " + e.getErrorType());
 		logger.info("Request ID:       " + e.getRequestId());
 	}
-	
-	// FIXME move to utility class??
-	public static void displayText(InputStream input) throws IOException {
-		// Read one text line at a time and display.
-		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-		while (true) {
-			String line = reader.readLine();
-			if (line == null)
-				break;
-			System.out.println("    " + line);
-		}
-	}
-
 }

@@ -41,7 +41,14 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	public Student findById(int id) {
-		return studentRepository.findOne(id);
+		Student student = studentRepository.findOne(id);
+		String imgKey = student.getPhoto();
+		if(!StringUtils.isEmpty(imgKey)){
+			//fetch it from s3
+			String localPath = s3Service.downloadFile(imgKey);
+			student.setPhoto(localPath);
+		}
+		return student;
 	}
 
 	public Student findByName(String name) {
