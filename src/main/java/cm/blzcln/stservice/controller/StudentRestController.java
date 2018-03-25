@@ -1,5 +1,6 @@
 package cm.blzcln.stservice.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,9 @@ public class StudentRestController {
      
     @RequestMapping(value = "/student/", method = RequestMethod.GET)
     public ResponseEntity<List<Student>> listAllStudents() {
-        List<Student> students = studentService.findAllStudents();
+        Iterable<Student> studentIter = studentService.findAllStudents();
+        List<Student> students = new ArrayList<Student>();
+        studentIter.forEach(students :: add);
         if(students.isEmpty()){
             return new ResponseEntity<List<Student>>(HttpStatus.NO_CONTENT);//You many decide to return HttpStatus.NOT_FOUND
         }
@@ -49,7 +52,7 @@ public class StudentRestController {
     //-------------------Retrieve Single Student--------------------------------------------------------
      
     @RequestMapping(value = "/student/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Student> getStudent(@PathVariable("id") long id) {
+    public ResponseEntity<Student> getStudent(@PathVariable("id") int id) {
         System.out.println("Fetching Student with id " + id);
         Student student = studentService.findById(id);
         if (student == null) {
@@ -72,7 +75,11 @@ public class StudentRestController {
             return new ResponseEntity<Void>(HttpStatus.CONFLICT);
         }
  
-        studentService.saveStudent(student);
+        try{
+        	studentService.saveStudent(student);
+        }catch(Exception e){
+        	return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
  
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/student/{id}").buildAndExpand(student.getId()).toUri());
@@ -83,7 +90,7 @@ public class StudentRestController {
     //------------------- Update a Student --------------------------------------------------------
      
     @RequestMapping(value = "/student/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<Student> updateStudent(@PathVariable("id") long id, @RequestBody Student student) {
+    public ResponseEntity<Student> updateStudent(@PathVariable("id") int id, @RequestBody Student student) {
         System.out.println("Updating Student " + id);
          
         Student currentStudent = studentService.findById(id);
@@ -104,7 +111,7 @@ public class StudentRestController {
     //------------------- Delete a Student --------------------------------------------------------
      
     @RequestMapping(value = "/student/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Student> deleteStudent(@PathVariable("id") long id) {
+    public ResponseEntity<Student> deleteStudent(@PathVariable("id") int id) {
         System.out.println("Fetching & Deleting Student with id " + id);
  
         Student student = studentService.findById(id);

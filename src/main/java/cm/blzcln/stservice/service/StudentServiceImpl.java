@@ -1,16 +1,32 @@
 package cm.blzcln.stservice.service;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.mysql.cj.jdbc.exceptions.OperationNotSupportedException;
+
+import cm.blzcln.stservice.aws.service.S3Service;
+import cm.blzcln.stservice.exception.StudentServiceException;
 import cm.blzcln.stservice.model.Student;
+import cm.blzcln.stservice.repository.StudentCRUDRepository;
 
 @Service("studentService")
 public class StudentServiceImpl implements StudentService {
+
+	@Autowired
+	private StudentCRUDRepository studentRepository;
+
+	@Autowired
+	private S3Service s3Service;
 
 	private static final AtomicLong counter = new AtomicLong();
 
@@ -20,51 +36,51 @@ public class StudentServiceImpl implements StudentService {
 		students = populateDummyStudents();
 	}
 
-	public List<Student> findAllStudents() {
-		return students;
+	public Iterable<Student> findAllStudents() {
+		return studentRepository.findAll();
 	}
 
-	public Student findById(long id) {
-		for (Student student : students) {
-			if (student.getId() == id) {
-				return student;
-			}
-		}
-		return null;
+	public Student findById(int id) {
+		return studentRepository.findOne(id);
 	}
 
 	public Student findByName(String name) {
-		for (Student student : students) {
-			if (student.getName().equalsIgnoreCase(name)) {
-				return student;
-			}
+		List<Student> students = studentRepository.findByName(name);
+		if (!students.isEmpty()) {
+			return students.get(0);
 		}
 		return null;
 	}
-
-	public void saveStudent(Student student) {
-		counter.incrementAndGet();
-		student.setId(counter.intValue());
-		students.add(student);
-	}
-
-	public void updateStudent(Student student) {
-		int index = students.indexOf(student);
-		students.set(index, student);
-	}
-
-	public void deleteStudentById(long id) {
-
-		for (Iterator<Student> iterator = students.iterator(); iterator.hasNext();) {
-			Student student = iterator.next();
-			if (student.getId() == id) {
-				iterator.remove();
+	
+	public void saveStudent(Student student) throws StudentServiceException {
+		if (!StringUtils.isEmpty(student.getPhoto())) {
+			File photo = new File(student.getPhoto());
+			if (!photo.exists()) {
+				throw new StudentServiceException("Photo path is invalid");
 			}
+			String keyName = generateFileName(photo);
+			s3Service.uploadFile(keyName, photo.getAbsolutePath());
+			student.setPhoto(keyName);
 		}
+		studentRepository.save(student);
+	}
+
+	private String generateFileName(File file) {
+	    return new Date().getTime() + "-" + file.getName().replace(" ", "_");
+	}
+	
+	public void updateStudent(Student student) {
+		studentRepository.save(student);
+	}
+
+	public void deleteStudentById(int id) {
+		studentRepository.delete(id);
 	}
 
 	public boolean isStudentExist(Student student) {
-		return findByName(student.getName()) != null;
+		List<Student> existingStList = studentRepository.findByName(student.getName());
+		return existingStList != null && !existingStList.isEmpty();
+		//return studentRepository.findByName(student.getName()) != null && student.getName().equa;
 	}
 
 	// this(id, name, age, photo, rating);
@@ -96,7 +112,8 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	public void deleteAllStudents() {
-		students.clear();
+		throw new RuntimeException("method not supported yet");
+		// students.clear();
 	}
 
 }

@@ -1,10 +1,56 @@
 package cm.blzcln.stservice.model;
 
-public class Student {
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "student")
+public class Student implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@Column
+	private String name;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int id;
+	@Column
+	private int age;
+	@Column
+	private String photo; //FIXME separate table
+	@Column
+	private int rating;
+	@Column
+	private int klass;
+	@Column
+	private int classTeacher; //FIXME separate table
 
 	public Student() {
 	}
+
 	
+	public Student(String name, int age, String photo, int rating,
+			int klass, int classTeacher) {
+		this(name, age, photo, rating);
+		this.klass = klass;
+		this.classTeacher = classTeacher;
+	}
+	
+	public Student(String name, int age, String photo, int rating) {
+		super();
+		this.name = name;
+		//this.id = id;
+		this.age = age;
+		this.photo = photo;
+		this.rating = rating;
+	}
+
 	public Student(int id, String name, int age, String photo, int rating) {
 		super();
 		this.name = name;
@@ -14,17 +60,13 @@ public class Student {
 		this.rating = rating;
 	}
 
-	public Student(int id, String name, int age, String photo, int rating, int klass,
-			int classTeacher) {
+	public Student(int id, String name, int age, String photo, int rating,
+			int klass, int classTeacher) {
 		// super();
 		this(id, name, age, photo, rating);
 		this.klass = klass;
 		this.classTeacher = classTeacher;
 	}
-
-	private String name;
-	private int id;
-	private int age;
 
 	public String getPhoto() {
 		return photo;
@@ -62,11 +104,6 @@ public class Student {
 		this.age = age;
 	}
 
-	private String photo;
-	private int rating;
-	private int klass;
-	private int classTeacher;
-
 	public String getName() {
 		return this.name;
 	}
@@ -95,6 +132,4 @@ public class Student {
 				+ klass + ", classTeacher=" + classTeacher + "]";
 	}
 
-	
-	
 }

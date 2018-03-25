@@ -3,8 +3,7 @@
  */
 package cm.blzcln.stservice.service;
 
-import java.util.List;
-
+import cm.blzcln.stservice.exception.StudentServiceException;
 import cm.blzcln.stservice.model.Student;
 
 /**
@@ -13,17 +12,17 @@ import cm.blzcln.stservice.model.Student;
  */
 public interface StudentService {
 
-	List<Student> findAllStudents();
+	Iterable<Student> findAllStudents();
 
-	Student findById(long id);
+	Student findById(int id);
 
 	boolean isStudentExist(Student user);
 
-	void saveStudent(Student user);
+	void saveStudent(Student user) throws StudentServiceException;
 
 	void updateStudent(Student currentStudent);
 
-	void deleteStudentById(long id);
+	void deleteStudentById(int id);
 
 	void deleteAllStudents();
 
