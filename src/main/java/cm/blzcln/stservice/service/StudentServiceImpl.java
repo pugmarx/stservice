@@ -96,8 +96,7 @@ public class StudentServiceImpl implements StudentService {
 			// delete it from s3
 			s3Service.deleteFile(imgKey);
 		}
-		// FIXME
-		// studentRepository.delete(id);
+		studentRepository.delete(id);
 	}
 
 	public boolean isStudentExist(Student student) {
