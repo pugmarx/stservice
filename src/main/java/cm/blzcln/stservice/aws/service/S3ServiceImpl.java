@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
@@ -24,7 +26,7 @@ public class S3ServiceImpl implements S3Service {
 
 	@Value("${student.s3.bucket}")
 	private String bucketName;
-	
+
 	@Value("${student.img.tmp.dir}")
 	private String tmpDir;
 
@@ -33,17 +35,20 @@ public class S3ServiceImpl implements S3Service {
 		File localFile = new File(tmpDir, keyName);
 		try {
 			System.out.println("Downloading an object");
-			
-			//ObjectMetadata object = s3client.getObject(new GetObjectRequest(bucketName, keyName), localFile);
 			s3client.getObject(new GetObjectRequest(bucketName, keyName), localFile);
 			
+			
+			//S3Object s3object = s3client.getObject(bucketName, "picture/pic.png");
+			//S3ObjectInputStream inputStream = s3object.getObjectContent();
+			//FileUtils.copyInputStreamToFile(inputStream, new File("/Users/user/Desktop/hello.txt"));
+
+
 			logger.info("===================== Import File - Done! =====================");
 		} catch (AmazonServiceException ase) {
 			handleAWSServiceException("GET", ase);
 		} catch (AmazonClientException ace) {
-			logger.info("Caught an AmazonClientException: ");
-			logger.info("Error Message: " + ace.getMessage());
-		} 
+			handleAWSClientException(ace);
+		}
 		return localFile.getAbsolutePath();
 	}
 
@@ -56,13 +61,30 @@ public class S3ServiceImpl implements S3Service {
 		} catch (AmazonServiceException ase) {
 			handleAWSServiceException("PUT", ase);
 		} catch (AmazonClientException ace) {
-			logger.info("Caught an AmazonClientException: ");
-			logger.info("Error Message: " + ace.getMessage());
+			handleAWSClientException(ace);
 		}
 	}
-	
-	private void handleAWSServiceException(String action, AmazonServiceException e){
-		logger.info("Caught an AmazonServiceException from "+ action + " requests, rejected reasons:");
+
+	@Override
+	public void deleteFile(String keyName) {
+		try {
+			System.out.println(String.format("::: deleting '%s' in bucket '%s'", keyName, bucketName));
+			s3client.deleteObject(new DeleteObjectRequest(bucketName, keyName));
+			logger.info("===================== Delete File - Done! =====================");
+		} catch (AmazonServiceException ase) {
+			handleAWSServiceException("DELETE", ase);
+		} catch (AmazonClientException ace) {
+			handleAWSClientException(ace);
+		}
+	}
+
+	private void handleAWSClientException(AmazonClientException ace) {
+		logger.info("Caught an AmazonClientException: ");
+		logger.info("Error Message: " + ace.getMessage());
+	}
+
+	private void handleAWSServiceException(String action, AmazonServiceException e) {
+		logger.info("Caught an AmazonServiceException from " + action + " requests, rejected reasons:");
 		logger.info("Error Message:    " + e.getMessage());
 		logger.info("HTTP Status Code: " + e.getStatusCode());
 		logger.info("AWS Error Code:   " + e.getErrorCode());

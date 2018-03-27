@@ -2,11 +2,13 @@ package cm.blzcln.stservice.model;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -23,26 +25,38 @@ public class Student implements Serializable {
 	@Column
 	private int age;
 	@Column
-	private String photo; //FIXME separate table
-	@Column
 	private int rating;
 	@Column
 	private int klass;
 	@Column
 	private int classTeacher; //FIXME separate table
+	
+	//@Column
+	@OneToOne(cascade = CascadeType.ALL)
+	private Photo photo;
+	
+
+	public Photo getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(Photo photo) {
+		this.photo = photo;
+	}
+
 
 	public Student() {
 	}
 
 	
-	public Student(String name, int age, String photo, int rating,
+	public Student(String name, int age, Photo photo, int rating,
 			int klass, int classTeacher) {
 		this(name, age, photo, rating);
 		this.klass = klass;
 		this.classTeacher = classTeacher;
 	}
 	
-	public Student(String name, int age, String photo, int rating) {
+	public Student(String name, int age, Photo photo, int rating) {
 		super();
 		this.name = name;
 		//this.id = id;
@@ -51,7 +65,7 @@ public class Student implements Serializable {
 		this.rating = rating;
 	}
 
-	public Student(int id, String name, int age, String photo, int rating) {
+	public Student(int id, String name, int age, Photo photo, int rating) {
 		super();
 		this.name = name;
 		this.id = id;
@@ -60,20 +74,12 @@ public class Student implements Serializable {
 		this.rating = rating;
 	}
 
-	public Student(int id, String name, int age, String photo, int rating,
+	public Student(int id, String name, int age, Photo photo, int rating,
 			int klass, int classTeacher) {
 		// super();
 		this(id, name, age, photo, rating);
 		this.klass = klass;
 		this.classTeacher = classTeacher;
-	}
-
-	public String getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(String photo) {
-		this.photo = photo;
 	}
 
 	public int getRating() {
