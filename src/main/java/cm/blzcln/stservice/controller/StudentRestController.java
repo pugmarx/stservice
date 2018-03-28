@@ -61,6 +61,19 @@ public class StudentRestController {
         }
         return new ResponseEntity<Student>(student, HttpStatus.OK);
     }
+    
+    //-------------------Retrieve Single Student By Name --------------------------------------------------------
+    
+    @RequestMapping(value = "/student/n/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Student> getStudent(@PathVariable("name") String name) {
+        System.out.println("Fetching Student with name " + name);
+        Student student = studentService.findByName(name);
+        if (student == null) {
+            System.out.println("Student with name " + name + " not found");
+            return new ResponseEntity<Student>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Student>(student, HttpStatus.OK);
+    }
  
      
      

@@ -15,6 +15,8 @@ public interface StudentService {
 	Iterable<Student> findAllStudents();
 
 	Student findById(int id);
+	
+	Student findByName(String name);
 
 	boolean isStudentExist(Student user);
 

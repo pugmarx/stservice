@@ -16,6 +16,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.amazonaws.services.appstream.model.ResourceNotAvailableException;
@@ -23,49 +24,53 @@ import com.amazonaws.services.appstream.model.ResourceNotAvailableException;
 import cm.blzcln.stservice.model.Photo;
 import cm.blzcln.stservice.model.Student;
 
-/* FIXME Make tests independent */
 /* FIXME Mock the s3 service */
 @RunWith(SpringRunner.class)
 public class StudentServiceTest {
 	private static final String REST_SERVICE_URI = "http://localhost:8080/StudentRestApi";
 	private static File resourcesDir;
-	private static List<Student> toRemove = new ArrayList<Student>();
 
 	@Before
 	public void setUp() {
 		resourcesDir = new File("src/test/resources");
 	}
 
-	@After
-	public void tearDown() {
-		for (Student s : toRemove) {
-			removeStudent(s.getId());
-		}
+	@Test
+	public void testCreate() {
+		String sName = UUID.randomUUID().toString();
+		createStudentByName(sName);
+		Student dbStudent = getStudentByName(sName);
+		assertNotNull(dbStudent);
+		assertNotEquals(0, dbStudent.getId());
+		removeStudent(dbStudent.getId());
+	}
+
+	private Student getStudentByName(String name) {
+		RestTemplate restTemplate = new RestTemplate();
+		Student fetchedStudent = restTemplate.getForObject(REST_SERVICE_URI
+				+ "/student/n/" + name, Student.class);
+		return fetchedStudent;
 	}
 
 	@Test
-	public void testCreate() {
-		Student student = createStudent(true);
-		assertNotNull(student);
-		assertNotEquals(0, student.getId());
-	}
-
-	@Test @Ignore
-	public void testFetch() {
-		Student student = createStudent(true);
-		RestTemplate restTemplate = new RestTemplate();
-		Student fetchedStudent = restTemplate.getForObject(REST_SERVICE_URI + "/student/" + student.getId(),
-				Student.class);
-		assertEquals(student, fetchedStudent);
-	}
-
-	@Test(expected = ResourceNotAvailableException.class)
 	@Ignore
-	public void testDelete() {
-		Student student = createStudent(true);
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.delete(REST_SERVICE_URI + "/student/" + student.getId());
+	public void testFetch() {
+		String sName = UUID.randomUUID().toString();
+		createStudentByName(sName);
+		Student fetchedStudent = getStudentByName(sName);
+		assertNotEquals(0, fetchedStudent.getId());
+	}
 
+	@Test(expected = HttpClientErrorException.class)
+	public void testDelete() {
+		String sName = UUID.randomUUID().toString();
+		createStudentByName(sName);
+		RestTemplate restTemplate = new RestTemplate();
+		Student fetchedStudent = getStudentByName(sName);
+		restTemplate.delete(REST_SERVICE_URI + "/student/"
+				+ fetchedStudent.getId());
+		
+		getStudentByName(sName);
 	}
 
 	private static boolean removeStudent(int studentId) {
@@ -74,17 +79,14 @@ public class StudentServiceTest {
 		return true;
 	}
 
-	private static Student createStudent(boolean markForAutoRemoval) {
+	private static void createStudentByName(String name) {
 		RestTemplate restTemplate = new RestTemplate();
 		Photo photo = new Photo();
 		photo.setLocalPath(new File(resourcesDir, "test.png").getAbsolutePath());
-		Student student = new Student(UUID.randomUUID().toString(), 33, photo, 3);
-		URI uri = restTemplate.postForLocation(REST_SERVICE_URI + "/student/", student, Student.class);
+		Student student = new Student(name, 33, photo, 3);
+		URI uri = restTemplate.postForLocation(REST_SERVICE_URI + "/student/",
+				student, Student.class);
 		System.out.println("Location : " + uri.toASCIIString());
-		if (markForAutoRemoval) {
-			toRemove.add(student);
-		}
-		return student;
 	}
 
 	private static void generateStudents() {
@@ -101,11 +103,13 @@ public class StudentServiceTest {
 
 	}
 
-	private static void createStudent(String n, int a, Photo p, int r, int c, int t) {
+	private static void createStudent(String n, int a, Photo p, int r, int c,
+			int t) {
 		System.out.println("Testing create Student API----------");
 		RestTemplate restTemplate = new RestTemplate();
 		Student student = new Student(n, a, p, r, c, t);
-		URI uri = restTemplate.postForLocation(REST_SERVICE_URI + "/student/", student, Student.class);
+		URI uri = restTemplate.postForLocation(REST_SERVICE_URI + "/student/",
+				student, Student.class);
 		System.out.println("Location : " + uri.toASCIIString());
 	}
 }
