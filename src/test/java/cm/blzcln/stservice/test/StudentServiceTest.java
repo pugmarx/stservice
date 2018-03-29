@@ -1,16 +1,12 @@
 package cm.blzcln.stservice.test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,8 +14,6 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import com.amazonaws.services.appstream.model.ResourceNotAvailableException;
 
 import cm.blzcln.stservice.model.Photo;
 import cm.blzcln.stservice.model.Student;
@@ -100,7 +94,6 @@ public class StudentServiceTest {
 		createStudent("Heather", 11, null, 5, 3, 13);
 		createStudent("Isaac", 12, null, 4, 3, 13);
 		createStudent("Joanna", 15, null, 5, 5, 15);
-
 	}
 
 	private static void createStudent(String n, int a, Photo p, int r, int c,
